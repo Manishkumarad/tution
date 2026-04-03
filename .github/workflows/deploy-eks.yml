@@ -24,6 +24,58 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Validate required GitHub variables and secrets
+        shell: bash
+        env:
+          AWS_REGION_VAR: ${{ vars.AWS_REGION }}
+          AWS_ACCOUNT_ID_VAR: ${{ vars.AWS_ACCOUNT_ID }}
+          EKS_CLUSTER_NAME_VAR: ${{ vars.EKS_CLUSTER_NAME }}
+          VITE_API_BASE_URL_VAR: ${{ vars.VITE_API_BASE_URL }}
+          AWS_ACCESS_KEY_ID_SECRET: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY_SECRET: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          DATABASE_URL_SECRET: ${{ secrets.DATABASE_URL }}
+          JWT_ACCESS_SECRET_SECRET: ${{ secrets.JWT_ACCESS_SECRET }}
+          JWT_REFRESH_SECRET_SECRET: ${{ secrets.JWT_REFRESH_SECRET }}
+          RAZORPAY_KEY_ID_SECRET: ${{ secrets.RAZORPAY_KEY_ID }}
+          RAZORPAY_KEY_SECRET_SECRET: ${{ secrets.RAZORPAY_KEY_SECRET }}
+          RAZORPAY_WEBHOOK_SECRET_SECRET: ${{ secrets.RAZORPAY_WEBHOOK_SECRET }}
+        run: |
+          set -euo pipefail
+
+          missing=0
+
+          check_required() {
+            local value="$1"
+            local name="$2"
+            local hint="$3"
+
+            if [[ -z "$value" ]]; then
+              echo "::error title=Missing required configuration::${name} is not set (${hint})"
+              missing=1
+            fi
+          }
+
+          check_required "$AWS_REGION_VAR" "AWS_REGION" "Repository Variable"
+          check_required "$AWS_ACCOUNT_ID_VAR" "AWS_ACCOUNT_ID" "Repository Variable"
+          check_required "$EKS_CLUSTER_NAME_VAR" "EKS_CLUSTER_NAME" "Repository Variable"
+          check_required "$VITE_API_BASE_URL_VAR" "VITE_API_BASE_URL" "Repository Variable"
+
+          check_required "$AWS_ACCESS_KEY_ID_SECRET" "AWS_ACCESS_KEY_ID" "Repository Secret"
+          check_required "$AWS_SECRET_ACCESS_KEY_SECRET" "AWS_SECRET_ACCESS_KEY" "Repository Secret"
+          check_required "$DATABASE_URL_SECRET" "DATABASE_URL" "Repository Secret"
+          check_required "$JWT_ACCESS_SECRET_SECRET" "JWT_ACCESS_SECRET" "Repository Secret"
+          check_required "$JWT_REFRESH_SECRET_SECRET" "JWT_REFRESH_SECRET" "Repository Secret"
+          check_required "$RAZORPAY_KEY_ID_SECRET" "RAZORPAY_KEY_ID" "Repository Secret"
+          check_required "$RAZORPAY_KEY_SECRET_SECRET" "RAZORPAY_KEY_SECRET" "Repository Secret"
+          check_required "$RAZORPAY_WEBHOOK_SECRET_SECRET" "RAZORPAY_WEBHOOK_SECRET" "Repository Secret"
+
+          if [[ "$missing" -ne 0 ]]; then
+            echo "::error title=Deploy preflight failed::Set missing repo variables/secrets, then re-run Deploy To EKS"
+            exit 1
+          fi
+
+          echo "Deploy preflight checks passed."
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
