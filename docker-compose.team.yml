@@ -1,0 +1,24 @@
+services:
+  backend:
+    image: manii7070/tuition-backend:1.0.0
+    container_name: tuition-backend
+    env_file:
+      - .env
+    ports:
+      - "4000:4000"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "-", "http://localhost:4000/health"]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+
+  frontend:
+    image: manii7070/tuition-frontend:1.0.0
+    container_name: tuition-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped

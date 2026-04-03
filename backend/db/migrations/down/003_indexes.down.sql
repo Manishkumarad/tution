@@ -1,0 +1,15 @@
+DROP INDEX IF EXISTS idx_notifications_coaching_created;
+DROP INDEX IF EXISTS idx_notifications_coaching_status_retry;
+DROP INDEX IF EXISTS idx_attendance_coaching_date;
+DROP INDEX IF EXISTS idx_payments_gateway_order;
+DROP INDEX IF EXISTS idx_payments_coaching_status_time;
+DROP INDEX IF EXISTS idx_payments_coaching_student_time;
+DROP INDEX IF EXISTS idx_fee_accounts_coaching_due_date;
+DROP INDEX IF EXISTS idx_fee_accounts_coaching_status;
+DROP INDEX IF EXISTS idx_students_coaching_qr_token;
+DROP INDEX IF EXISTS idx_students_coaching_status;
+DROP INDEX IF EXISTS idx_students_coaching_class;
+DROP INDEX IF EXISTS idx_students_coaching_name;
+DROP INDEX IF EXISTS idx_refresh_tokens_user;
+DROP INDEX IF EXISTS idx_users_email;
+DROP INDEX IF EXISTS idx_users_coaching_role;

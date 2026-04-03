@@ -1,0 +1,71 @@
+<svg width="1200" height="1400" viewBox="0 0 1200 1400" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="room" x1="83" y1="74" x2="1123" y2="1352" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0A6072"/>
+      <stop offset="0.54" stop-color="#0A7E84"/>
+      <stop offset="1" stop-color="#2EA56F"/>
+    </linearGradient>
+    <linearGradient id="board" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#103E3C"/>
+      <stop offset="1" stop-color="#1A5C53"/>
+    </linearGradient>
+    <linearGradient id="desk" x1="142" y1="937" x2="1006" y2="1178" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F5AF59"/>
+      <stop offset="1" stop-color="#E79339"/>
+    </linearGradient>
+    <radialGradient id="sun" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(980 210) rotate(90) scale(250)">
+      <stop stop-color="#FFFFFF" stop-opacity="0.62"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="grain" x="0" y="0" width="1200" height="1400" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.95" numOctaves="2" stitchTiles="stitch"/>
+      <feColorMatrix type="saturate" values="0"/>
+      <feComponentTransfer>
+        <feFuncA type="table" tableValues="0 0.03"/>
+      </feComponentTransfer>
+    </filter>
+  </defs>
+
+  <rect width="1200" height="1400" fill="url(#room)"/>
+  <rect width="1200" height="1400" fill="url(#sun)"/>
+
+  <g opacity="0.95">
+    <rect x="136" y="170" width="928" height="510" rx="34" fill="url(#board)"/>
+    <rect x="172" y="216" width="516" height="22" rx="11" fill="#FFFFFF" fill-opacity="0.74"/>
+    <rect x="172" y="252" width="280" height="14" rx="7" fill="#C9EFE4" fill-opacity="0.78"/>
+
+    <rect x="176" y="318" width="848" height="2" fill="#FFFFFF" fill-opacity="0.16"/>
+
+    <rect x="188" y="368" width="260" height="182" rx="18" fill="#205E57"/>
+    <rect x="188" y="368" width="260" height="182" rx="18" fill="#FFFFFF" fill-opacity="0.08"/>
+    <rect x="480" y="368" width="252" height="182" rx="18" fill="#225F59"/>
+    <rect x="480" y="368" width="252" height="182" rx="18" fill="#FFFFFF" fill-opacity="0.1"/>
+    <rect x="764" y="368" width="252" height="182" rx="18" fill="#245C58"/>
+    <rect x="764" y="368" width="252" height="182" rx="18" fill="#FFFFFF" fill-opacity="0.12"/>
+  </g>
+
+  <g>
+    <rect x="130" y="862" width="940" height="260" rx="32" fill="url(#desk)"/>
+    <rect x="130" y="862" width="940" height="260" rx="32" fill="#FFFFFF" fill-opacity="0.12"/>
+    <rect x="176" y="928" width="600" height="28" rx="14" fill="#FFF4D9" fill-opacity="0.78"/>
+    <rect x="176" y="972" width="390" height="18" rx="9" fill="#FFF4D9" fill-opacity="0.56"/>
+    <rect x="176" y="1020" width="320" height="42" rx="21" fill="#0E847D" fill-opacity="0.78"/>
+    <rect x="520" y="1020" width="220" height="42" rx="21" fill="#FFFFFF" fill-opacity="0.42"/>
+  </g>
+
+  <g opacity="0.78">
+    <circle cx="232" cy="788" r="72" fill="#FFFFFF" fill-opacity="0.16"/>
+    <circle cx="232" cy="742" r="28" fill="#FFE5B3"/>
+    <rect x="160" y="836" width="144" height="120" rx="62" fill="#1C7D72"/>
+
+    <circle cx="456" cy="812" r="62" fill="#FFFFFF" fill-opacity="0.13"/>
+    <circle cx="456" cy="770" r="24" fill="#F5D39B"/>
+    <rect x="396" y="850" width="120" height="106" rx="52" fill="#2A8A7A"/>
+
+    <circle cx="646" cy="804" r="66" fill="#FFFFFF" fill-opacity="0.12"/>
+    <circle cx="646" cy="758" r="25" fill="#F2C58E"/>
+    <rect x="584" y="842" width="124" height="114" rx="56" fill="#23877C"/>
+  </g>
+
+  <rect width="1200" height="1400" filter="url(#grain)"/>
+</svg>

@@ -1,0 +1,11 @@
+DROP POLICY IF EXISTS tenant_isolation_receipts ON receipts;
+ALTER TABLE IF EXISTS receipts DISABLE ROW LEVEL SECURITY;
+DROP INDEX IF EXISTS idx_receipts_coaching_student;
+DROP INDEX IF EXISTS idx_receipts_coaching_created;
+ALTER TABLE IF EXISTS receipts DROP CONSTRAINT IF EXISTS fk_receipts_payment_tenant;
+ALTER TABLE IF EXISTS receipts DROP CONSTRAINT IF EXISTS fk_receipts_student_tenant;
+ALTER TABLE IF EXISTS receipts DROP CONSTRAINT IF EXISTS uq_receipts_number;
+ALTER TABLE IF EXISTS receipts DROP CONSTRAINT IF EXISTS uq_receipts_coaching_payment;
+ALTER TABLE IF EXISTS receipts DROP CONSTRAINT IF EXISTS uq_receipts_coaching_id_id;
+ALTER TABLE IF EXISTS receipts DROP CONSTRAINT IF EXISTS fk_receipts_coaching;
+DROP TABLE IF EXISTS receipts CASCADE;

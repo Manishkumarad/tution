@@ -1,0 +1,11 @@
+node_modules
+npm-debug.log
+.git
+.gitignore
+.env
+.env.*
+frontend/node_modules
+frontend/dist
+backend/storage/receipts
+*.log
+.vscode

@@ -1,0 +1,108 @@
+name: Deploy To EKS
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  AWS_REGION: ${{ vars.AWS_REGION }}
+  ECR_REGISTRY: ${{ vars.AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com
+  ECR_BACKEND_REPO: tuition-backend
+  ECR_FRONTEND_REPO: tuition-frontend
+  K8S_NAMESPACE: tuition-saas
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Set image tags
+        id: vars
+        run: |
+          echo "sha_short=${GITHUB_SHA::8}" >> "$GITHUB_OUTPUT"
+          echo "backend_image=${ECR_REGISTRY}/${ECR_BACKEND_REPO}:${GITHUB_SHA::8}" >> "$GITHUB_OUTPUT"
+          echo "frontend_image=${ECR_REGISTRY}/${ECR_FRONTEND_REPO}:${GITHUB_SHA::8}" >> "$GITHUB_OUTPUT"
+
+      - name: Build and push backend image
+        run: |
+          docker build -t "${{ steps.vars.outputs.backend_image }}" -f Dockerfile .
+          docker push "${{ steps.vars.outputs.backend_image }}"
+
+      - name: Build and push frontend image
+        run: |
+          docker build \
+            -t "${{ steps.vars.outputs.frontend_image }}" \
+            -f frontend/Dockerfile \
+            --build-arg VITE_API_BASE_URL="${{ vars.VITE_API_BASE_URL }}" \
+            .
+          docker push "${{ steps.vars.outputs.frontend_image }}"
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v4
+
+      - name: Configure kubeconfig for EKS
+        run: |
+          aws eks update-kubeconfig --name "${{ vars.EKS_CLUSTER_NAME }}" --region "${{ env.AWS_REGION }}"
+
+      - name: Ensure namespace exists
+        run: |
+          kubectl get namespace "${K8S_NAMESPACE}" || kubectl create namespace "${K8S_NAMESPACE}"
+
+      - name: Apply base manifests
+        run: |
+          kubectl apply -k k8s/base
+
+      - name: Create or update backend secret
+        run: |
+          kubectl -n "${K8S_NAMESPACE}" create secret generic backend-secret \
+            --from-literal=DATABASE_URL='${{ secrets.DATABASE_URL }}' \
+            --from-literal=JWT_ACCESS_SECRET='${{ secrets.JWT_ACCESS_SECRET }}' \
+            --from-literal=JWT_REFRESH_SECRET='${{ secrets.JWT_REFRESH_SECRET }}' \
+            --from-literal=RAZORPAY_KEY_ID='${{ secrets.RAZORPAY_KEY_ID }}' \
+            --from-literal=RAZORPAY_KEY_SECRET='${{ secrets.RAZORPAY_KEY_SECRET }}' \
+            --from-literal=RAZORPAY_WEBHOOK_SECRET='${{ secrets.RAZORPAY_WEBHOOK_SECRET }}' \
+            --from-literal=SMTP_HOST='${{ secrets.SMTP_HOST }}' \
+            --from-literal=SMTP_USER='${{ secrets.SMTP_USER }}' \
+            --from-literal=SMTP_PASS='${{ secrets.SMTP_PASS }}' \
+            --from-literal=OWNER_ALERT_EMAIL='${{ secrets.OWNER_ALERT_EMAIL }}' \
+            --from-literal=SMS_PROVIDER_URL='${{ secrets.SMS_PROVIDER_URL }}' \
+            --from-literal=SMS_PROVIDER_TOKEN='${{ secrets.SMS_PROVIDER_TOKEN }}' \
+            --from-literal=TWILIO_ACCOUNT_SID='${{ secrets.TWILIO_ACCOUNT_SID }}' \
+            --from-literal=TWILIO_AUTH_TOKEN='${{ secrets.TWILIO_AUTH_TOKEN }}' \
+            --from-literal=TWILIO_FROM_NUMBER='${{ secrets.TWILIO_FROM_NUMBER }}' \
+            --from-literal=TWILIO_MESSAGING_SERVICE_SID='${{ secrets.TWILIO_MESSAGING_SERVICE_SID }}' \
+            --from-literal=WHATSAPP_PROVIDER_URL='${{ secrets.WHATSAPP_PROVIDER_URL }}' \
+            --from-literal=WHATSAPP_PROVIDER_TOKEN='${{ secrets.WHATSAPP_PROVIDER_TOKEN }}' \
+            --from-literal=WHATSAPP_SENDER='${{ secrets.WHATSAPP_SENDER }}' \
+            --dry-run=client -o yaml | kubectl apply -f -
+
+      - name: Update deployments with new images
+        run: |
+          kubectl -n "${K8S_NAMESPACE}" set image deployment/tuition-backend backend="${{ steps.vars.outputs.backend_image }}"
+          kubectl -n "${K8S_NAMESPACE}" set image deployment/tuition-worker worker="${{ steps.vars.outputs.backend_image }}"
+          kubectl -n "${K8S_NAMESPACE}" set image deployment/tuition-frontend frontend="${{ steps.vars.outputs.frontend_image }}"
+
+      - name: Rollout status
+        run: |
+          kubectl -n "${K8S_NAMESPACE}" rollout status deployment/tuition-backend --timeout=180s
+          kubectl -n "${K8S_NAMESPACE}" rollout status deployment/tuition-worker --timeout=180s
+          kubectl -n "${K8S_NAMESPACE}" rollout status deployment/tuition-frontend --timeout=180s

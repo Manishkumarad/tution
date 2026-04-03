@@ -1,0 +1,6 @@
+ALTER TABLE students
+  DROP COLUMN IF EXISTS family_details,
+  DROP COLUMN IF EXISTS address;
+
+ALTER TABLE students
+  ALTER COLUMN phone DROP NOT NULL;

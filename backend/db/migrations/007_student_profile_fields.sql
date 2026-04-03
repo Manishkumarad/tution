@@ -1,0 +1,11 @@
+ALTER TABLE students
+  ADD COLUMN IF NOT EXISTS family_details TEXT,
+  ADD COLUMN IF NOT EXISTS address TEXT;
+
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM students WHERE phone IS NULL) THEN
+    ALTER TABLE students
+      ALTER COLUMN phone SET NOT NULL;
+  END IF;
+END $$;

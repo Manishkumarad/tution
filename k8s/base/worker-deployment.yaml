@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tuition-worker
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: tuition-worker
+  template:
+    metadata:
+      labels:
+        app: tuition-worker
+    spec:
+      containers:
+        - name: worker
+          image: <aws-account-id>.dkr.ecr.<region>.amazonaws.com/tuition-backend:latest
+          imagePullPolicy: IfNotPresent
+          command: ["node", "src/scripts/sqs-reminder-worker.js"]
+          envFrom:
+            - configMapRef:
+                name: backend-config
+            - secretRef:
+                name: backend-secret
+          env:
+            - name: SQS_ENABLED
+              value: "true"
+          resources:
+            requests:
+              cpu: "200m"
+              memory: "256Mi"
+            limits:
+              cpu: "1"
+              memory: "1Gi"

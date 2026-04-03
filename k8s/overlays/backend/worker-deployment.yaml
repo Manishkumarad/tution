@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tuition-worker
+spec:
+  replicas: 0
+  selector:
+    matchLabels:
+      app: tuition-worker
+  template:
+    metadata:
+      labels:
+        app: tuition-worker
+    spec:
+      containers:
+        - name: worker
+          image: tution-backend:latest
+          imagePullPolicy: IfNotPresent
+          command: ["node", "backend/src/scripts/sqs-reminder-worker.js"]
+          envFrom:
+            - configMapRef:
+                name: backend-config
+            - secretRef:
+                name: backend-secret
+          resources:
+            requests:
+              cpu: "200m"
+              memory: "256Mi"
+            limits:
+              cpu: "1"
+              memory: "1Gi"

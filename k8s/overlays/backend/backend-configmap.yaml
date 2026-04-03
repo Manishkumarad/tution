@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backend-config
+data:
+  NODE_ENV: "production"
+  PORT: "4000"
+  CORS_ORIGIN: "https://app.example.com"
+  JWT_ACCESS_EXPIRES: "15m"
+  JWT_REFRESH_EXPIRES: "7d"
+  DB_SSL_REJECT_UNAUTHORIZED: "false"
+  REMINDER_CRON_EXPRESSION: "0 9 * * *"
+  NOTIFICATION_WORKER_CRON_EXPRESSION: "*/5 * * * *"
+  REMINDER_TIMEZONE: "Asia/Kolkata"
+  REMINDER_CHANNELS: "sms,email"
+  NOTIFICATION_MAX_RETRIES: "5"
+  SMTP_PORT: "587"
+  SMTP_SECURE: "false"
+  SMTP_FROM: "no-reply@tution.app"
+  RECEIPT_BASE_URL: "https://api.example.com/receipts"
